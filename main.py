@@ -309,22 +309,7 @@ def eval_genomes(genomes, config):
             visualize.draw_net(config, winner, filename=filename, view=False, node_names=node_names)
 
 
-            import matplotlib.pyplot as plt
 
-            max_scores = [score[0] for score in generation_scores]
-            avg_scores = [score[1] for score in generation_scores]
-            generations = list(range(1, len(generation_scores) + 1))
-
-            plt.plot(generations, max_scores, label='', color='blue', marker='o')
-            plt.plot(generations, avg_scores, label='', color='orange', marker='x')
-
-            plt.xlabel('Generation')
-            plt.ylabel('Score')
-            plt.title('NEAT AI Learning Progress')
-            plt.grid(True)
-            plt.legend()
-            plt.savefig('neat_progress.png')
-            plt.show(block=False)
 
 
 
@@ -342,6 +327,23 @@ def run(config_path):
     pop = neat.Population(config)
     pop.run(eval_genomes)
 
+
+import matplotlib.pyplot as plt
+
+max_scores = [score[0] for score in generation_scores]
+avg_scores = [score[1] for score in generation_scores]
+generations = list(range(1, len(generation_scores) + 1))
+
+plt.plot(generations, max_scores, label='', color='blue', marker='o')
+plt.plot(generations, avg_scores, label='', color='orange', marker='x')
+
+plt.xlabel('Generation')
+plt.ylabel('Score')
+plt.title('NEAT AI Learning Progress')
+plt.grid(True)
+plt.legend()
+plt.savefig('neat_progress.png')
+plt.show(block=False)
 import subprocess
 
 def auto_git_command():
