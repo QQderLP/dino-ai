@@ -273,10 +273,58 @@ def eval_genomes(genomes, config):
             avg_score = sum(scores) / len(scores)
             generation_scores.append((max_score, avg_score))
             print(f"Generation done. Max: {max_score}, Avg: {avg_score}")
+            import visualize
+            import pickle
+            import os
+
+            # 儲存最佳 genome
+            winner = max(genomes, key=lambda g: g[1].fitness)[1]
+            with open("best_genome.pkl", "wb") as f:
+                pickle.dump(winner, f)
+
+            # 畫出神經網路
+            node_names = {
+                -1: "Y",
+                -2: "dx",
+                -3: "Type",
+                -4: "obsY",
+                -5: "obsW",
+                -6: "Speed",
+                0: "Jump",
+                1: "Duck"
+            }
+
+            # 建立圖檔資料夾
+            output_dir = "networks"
+            os.makedirs(output_dir, exist_ok=True)
+
+            # 自動編號：找出目前最大檔名數字
+            existing_files = [f for f in os.listdir(output_dir) if f.startswith("network_") and f.endswith(".png")]
+            numbers = [int(f.split("_")[1].split(".")[0]) for f in existing_files if
+                       f.split("_")[1].split(".")[0].isdigit()]
+            next_num = max(numbers) + 1 if numbers else 1
+            filename = os.path.join(output_dir, f"network_{next_num}")
 
 
+            visualize.draw_net(config, winner, filename=filename, view=False, node_names=node_names)
 
 
+            import matplotlib.pyplot as plt
+
+            max_scores = [score[0] for score in generation_scores]
+            avg_scores = [score[1] for score in generation_scores]
+            generations = list(range(1, len(generation_scores) + 1))
+
+            plt.plot(generations, max_scores, label='', color='blue', marker='o')
+            plt.plot(generations, avg_scores, label='', color='orange', marker='x')
+
+            plt.xlabel('Generation')
+            plt.ylabel('Score')
+            plt.title('NEAT AI Learning Progress')
+            plt.grid(True)
+            plt.legend()
+            plt.savefig('neat_progress.png')
+            plt.show(block=False)
 
 
 
@@ -293,57 +341,6 @@ def run(config_path):
 
     pop = neat.Population(config)
     pop.run(eval_genomes)
-
-    import visualize
-    import pickle
-    import os
-
-    # 儲存最佳 genome
-    winner = max(genomes, key=lambda g: g[1].fitness)[1]
-    with open("best_genome.pkl", "wb") as f:
-        pickle.dump(winner, f)
-
-    # 畫出神經網路
-    node_names = {
-        -1: "Y",
-        -2: "dx",
-        -3: "Type",
-        -4: "obsY",
-        -5: "obsW",
-        -6: "Speed",
-        0: "Jump",
-        1: "Duck"
-    }
-
-    # 建立圖檔資料夾
-    output_dir = "networks"
-    os.makedirs(output_dir, exist_ok=True)
-
-    # 自動編號：找出目前最大檔名數字
-    existing_files = [f for f in os.listdir(output_dir) if f.startswith("network_") and f.endswith(".png")]
-    numbers = [int(f.split("_")[1].split(".")[0]) for f in existing_files if
-               f.split("_")[1].split(".")[0].isdigit()]
-    next_num = max(numbers) + 1 if numbers else 1
-    filename = os.path.join(output_dir, f"network_{next_num}")
-
-    visualize.draw_net(config, winner, filename=filename, view=False, node_names=node_names)
-
-    import matplotlib.pyplot as plt
-
-    max_scores = [score[0] for score in generation_scores]
-    avg_scores = [score[1] for score in generation_scores]
-    generations = list(range(1, len(generation_scores) + 1))
-
-    plt.plot(generations, max_scores, label='', color='blue', marker='o')
-    plt.plot(generations, avg_scores, label='', color='orange', marker='x')
-
-    plt.xlabel('Generation')
-    plt.ylabel('Score')
-    plt.title('NEAT AI Learning Progress')
-    plt.grid(True)
-    plt.legend()
-    plt.savefig('neat_progress.png')
-    plt.show(block=False)
 
 import subprocess
 
